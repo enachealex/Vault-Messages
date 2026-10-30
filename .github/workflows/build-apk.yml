@@ -16,14 +16,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: temurin
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Build signed release APK
         env:
@@ -33,9 +33,18 @@ jobs:
           SIGNING_STORE_FILE: ${{ github.workspace }}/signing/vault-messages.jks
         run: |
           chmod +x gradlew
-          ./gradlew assembleFossRelease \
+          set -o pipefail
+          ./gradlew assembleFossRelease --console=plain \
             -PVERSION_CODE=$((1000 + ${{ github.run_number }})) \
-            -PVERSION_NAME="vault-${{ github.run_number }}"
+            -PVERSION_NAME="vault-${{ github.run_number }}" 2>&1 | tee build.log
+
+      - name: Report build errors
+        if: failure()
+        run: |
+          # Surface compiler/Gradle errors as one annotation (readable from the API and the phone app).
+          ERRS=$(grep -E "^e: |^> |What went wrong|ERROR:|error:" -A2 build.log | head -60)
+          ERRS="${ERRS//'%'/'%25'}"; ERRS="${ERRS//$'\n'/'%0A'}"; ERRS="${ERRS//$'\r'/'%0D'}"
+          echo "::error title=Build errors::${ERRS}"
 
       - name: Rename APK
         run: |
@@ -43,7 +52,7 @@ jobs:
           cp "$APK" "vault-messages-${{ github.run_number }}.apk"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: vault-messages-apk
           path: vault-messages-*.apk
