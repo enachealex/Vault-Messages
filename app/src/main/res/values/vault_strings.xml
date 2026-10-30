@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vault_app_name" translatable="false">Vault Messages</string>
+    <string name="quarantine" translatable="false">Quarantine</string>
+    <string name="show_quarantine" translatable="false">Quarantine</string>
+    <string name="no_quarantined_conversations" translatable="false">Nothing in quarantine. Spam and political texts from unknown numbers will land here silently.</string>
+    <string name="release_from_quarantine" translatable="false">Move to inbox</string>
+    <string name="empty_quarantine" translatable="false">Delete everything in quarantine</string>
+    <string name="empty_quarantine_confirmation" translatable="false">Permanently delete all quarantined conversations?</string>
+    <string name="spam_filter_enabled" translatable="false">Filter unknown senders</string>
+    <string name="edit_spam_keywords" translatable="false">Edit filter keywords</string>
+    <string name="reset_spam_keywords" translatable="false">Reset keywords to defaults</string>
+    <string name="spam_keywords_hint" translatable="false">One keyword or phrase per line</string>
+    <string name="spam_keywords_helper" translatable="false">Texts from numbers that aren\'t in your contacts (and that you\'ve never texted) are quarantined if they contain any of these.</string>
+    <string name="spam_keywords_saved" translatable="false">Filter keywords saved</string>
+</resources>
