@@ -7,6 +7,10 @@
     <string name="release_from_quarantine" translatable="false">Move to inbox</string>
     <string name="empty_quarantine" translatable="false">Delete everything in quarantine</string>
     <string name="empty_quarantine_confirmation" translatable="false">Permanently delete all quarantined conversations?</string>
+    <string name="scan_existing_messages" translatable="false">Scan existing messages</string>
+    <string name="scan_existing_confirmation" translatable="false">Check every conversation already on your phone and move spam and political texts from unknown numbers to quarantine? Nothing is deleted; you can review them here first.</string>
+    <string name="scanning_messages" translatable="false">Scanning your messages…</string>
+    <string name="scan_result" translatable="false">Moved %d conversation(s) to quarantine</string>
     <string name="spam_filter_enabled" translatable="false">Filter unknown senders</string>
     <string name="edit_spam_keywords" translatable="false">Edit filter keywords</string>
     <string name="reset_spam_keywords" translatable="false">Reset keywords to defaults</string>

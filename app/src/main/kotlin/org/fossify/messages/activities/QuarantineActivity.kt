@@ -70,6 +70,7 @@ class QuarantineActivity : SimpleActivity() {
         binding.archiveToolbar.inflateMenu(R.menu.quarantine_menu)
         binding.archiveToolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.scan_existing -> scanExistingMessages()
                 R.id.toggle_spam_filter -> {
                     config.spamFilterEnabled = !config.spamFilterEnabled
                     menuItem.isChecked = config.spamFilterEnabled
@@ -113,6 +114,30 @@ class QuarantineActivity : SimpleActivity() {
             val conversations = getQuarantinedConversations()
             runOnUiThread {
                 setupConversations(conversations)
+            }
+        }
+    }
+
+    private fun scanExistingMessages() {
+        ConfirmationDialog(
+            activity = this,
+            message = getString(R.string.scan_existing_confirmation),
+            positive = org.fossify.commons.R.string.ok,
+            negative = org.fossify.commons.R.string.cancel
+        ) {
+            toast(R.string.scanning_messages)
+            ensureBackgroundThread {
+                val all = try {
+                    conversationsDB.getNonArchived() + conversationsDB.getAllArchived()
+                } catch (_: Exception) {
+                    emptyList()
+                }
+                val count = SpamFilter.scanExistingConversations(this, all)
+                org.fossify.messages.helpers.refreshConversations()
+                runOnUiThread {
+                    toast(getString(R.string.scan_result, count))
+                    loadQuarantinedConversations()
+                }
             }
         }
     }

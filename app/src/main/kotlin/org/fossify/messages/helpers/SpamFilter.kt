@@ -1,12 +1,15 @@
 package org.fossify.messages.helpers
 
 import android.content.Context
+import android.net.Uri
 import android.provider.Telephony.Mms
 import android.provider.Telephony.Sms
 import org.fossify.commons.extensions.getMyContactsCursor
 import org.fossify.commons.helpers.ContactLookupResult
 import org.fossify.commons.helpers.SimpleContactsHelper
 import org.fossify.messages.extensions.config
+import org.fossify.messages.extensions.markThreadMessagesRead
+import org.fossify.messages.models.Conversation
 
 /**
  * Vault Messages spam filter.
@@ -38,6 +41,9 @@ object SpamFilter {
     )
 
     // Never quarantine anything that looks like a login or verification code.
+    private const val MAX_MMS_PER_THREAD = 50
+    private val MMS_PART_URI: Uri = Uri.parse("content://mms/part")
+
     private val VERIFICATION_PHRASES = listOf(
         "verification code", "security code", "your code", "login code", "sign-in code",
         "one-time", "one time pass", "passcode", "otp", "do not share", "don't share"
@@ -61,6 +67,76 @@ object SpamFilter {
         }
 
         return false
+    }
+
+    /**
+     * Runs the filter over conversations already on the phone. One-to-one threads from unknown
+     * senders with any received message matching a keyword are moved to quarantine (not deleted).
+     * Returns how many conversations were quarantined.
+     */
+    fun scanExistingConversations(context: Context, conversations: List<Conversation>): Int {
+        val config = context.config
+        val keywords = config.spamKeywords
+        var quarantinedCount = 0
+
+        conversations.forEach { conversation ->
+            val threadId = conversation.threadId
+            if (threadId <= 0 || conversation.isGroupConversation || conversation.isScheduled) return@forEach
+            if (conversation.phoneNumber.isBlank() || config.isThreadQuarantined(threadId)) return@forEach
+
+            val isSpam = getReceivedTexts(context, threadId).any { text ->
+                matchesAny(text, keywords) && !matchesAny(text, VERIFICATION_PHRASES)
+            }
+            if (!isSpam || isKnownSender(context, conversation.phoneNumber, threadId)) return@forEach
+
+            config.quarantineThread(threadId)
+            runCatching { context.markThreadMessagesRead(threadId) }
+            quarantinedCount++
+        }
+
+        return quarantinedCount
+    }
+
+    private fun getReceivedTexts(context: Context, threadId: Long): List<String> {
+        val id = threadId.toString()
+        val texts = ArrayList<String>()
+
+        queryStrings(
+            context, Sms.CONTENT_URI, Sms.BODY,
+            "${Sms.THREAD_ID} = ? AND ${Sms.TYPE} = ?", arrayOf(id, Sms.MESSAGE_TYPE_INBOX.toString())
+        ).let { texts.addAll(it) }
+
+        val mmsIds = queryStrings(
+            context, Mms.CONTENT_URI, Mms._ID,
+            "${Mms.THREAD_ID} = ? AND ${Mms.MESSAGE_BOX} = ?", arrayOf(id, Mms.MESSAGE_BOX_INBOX.toString())
+        ).take(MAX_MMS_PER_THREAD)
+
+        mmsIds.forEach { mmsId ->
+            texts.addAll(
+                queryStrings(context, MMS_PART_URI, "text", "mid = ? AND ct = ?", arrayOf(mmsId, "text/plain"))
+            )
+        }
+
+        return texts
+    }
+
+    private fun queryStrings(
+        context: Context,
+        uri: Uri,
+        column: String,
+        selection: String,
+        args: Array<String>
+    ): List<String> {
+        val values = ArrayList<String>()
+        try {
+            context.contentResolver.query(uri, arrayOf(column), selection, args, null)?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    cursor.getString(0)?.let { values.add(it) }
+                }
+            }
+        } catch (_: Exception) {
+        }
+        return values
     }
 
     fun matchesAny(body: String, keywords: Collection<String>): Boolean {
@@ -104,7 +180,7 @@ object SpamFilter {
 
     private fun hasRows(
         context: Context,
-        uri: android.net.Uri,
+        uri: Uri,
         projection: Array<String>,
         selection: String,
         args: Array<String>
