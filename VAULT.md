@@ -10,7 +10,10 @@ A Jump Vault fork of [Fossify Messages](https://github.com/FossifyOrg/Messages) 
 
 Code: `helpers/SpamFilter.kt`, `activities/QuarantineActivity.kt`, `adapters/QuarantineAdapter.kt`, `dialogs/SpamKeywordsDialog.kt`, plus hooks in `SmsReceiver`, `MmsReceiver`, `Messaging.kt` and `MainActivity`.
 
+## Updates
+Settings > Updates has **Check for updates** and **Install updates automatically** (on by default; checks when the app opens, at most every 6 hours). The app reads the latest GitHub release of this repo, downloads the APK and installs it. On Android 12+ the first self-update asks for one confirmation; later ones install silently.
+
 ## Builds
-Every push to `main` builds a signed APK with GitHub Actions and attaches it to a new GitHub Release. Open the latest release on your phone, download the `.apk`, and install. Updates install over the top because every build uses the same signing key in `signing/` (keep this repo private).
+Every push to `main` builds a signed APK with GitHub Actions and publishes it as a release tagged `build-N` (versionCode 1000 + N). The signing key in `signing/vault-release.p12` is protected by a strong password kept in the `SIGNING_STORE_PASSWORD` repository secret; never commit that password.
 
 Limitation: as with any non-Google texting app, there is no RCS while Vault Messages is the default texting app.

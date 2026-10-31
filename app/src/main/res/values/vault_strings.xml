@@ -11,6 +11,17 @@
     <string name="scan_existing_confirmation" translatable="false">Check every conversation already on your phone and move spam and political texts from unknown numbers to quarantine? Nothing is deleted; you can review them here first.</string>
     <string name="scanning_messages" translatable="false">Scanning your messages…</string>
     <string name="scan_result" translatable="false">Moved %d conversation(s) to quarantine</string>
+    <string name="updates" translatable="false">Updates</string>
+    <string name="check_for_updates" translatable="false">Check for updates</string>
+    <string name="current_build" translatable="false">Installed: build %d</string>
+    <string name="auto_install_updates" translatable="false">Install updates automatically</string>
+    <string name="checking_for_updates" translatable="false">Checking for updates…</string>
+    <string name="up_to_date" translatable="false">You\'re up to date (build %d)</string>
+    <string name="installing_update" translatable="false">Installing build %d…</string>
+    <string name="update_already_running" translatable="false">An update check is already running</string>
+    <string name="update_needs_permission" translatable="false">Allow Vault Messages to install apps so it can update itself, then check again</string>
+    <string name="update_needs_confirmation" translatable="false">An update is ready. Open Vault Messages to confirm it.</string>
+    <string name="update_failed" translatable="false">Update failed: %s</string>
     <string name="spam_filter_enabled" translatable="false">Filter unknown senders</string>
     <string name="edit_spam_keywords" translatable="false">Edit filter keywords</string>
     <string name="reset_spam_keywords" translatable="false">Reset keywords to defaults</string>

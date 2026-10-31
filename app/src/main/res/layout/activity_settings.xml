@@ -36,6 +36,54 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/settings_updates_label"
+                style="@style/SettingsSectionLabelStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/updates" />
+
+            <RelativeLayout
+                android:id="@+id/settings_check_for_updates_holder"
+                style="@style/SettingsHolderTextViewStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/settings_check_for_updates_label"
+                    style="@style/SettingsTextLabelStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/check_for_updates" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/settings_check_for_updates_value"
+                    style="@style/SettingsTextValueStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/settings_check_for_updates_label" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/settings_auto_update_holder"
+                style="@style/SettingsHolderSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyMaterialSwitch
+                    android:id="@+id/settings_auto_update"
+                    style="@style/SettingsSwitchStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto_install_updates" />
+
+            </RelativeLayout>
+
+            <include
+                android:id="@+id/settings_updates_divider"
+                layout="@layout/divider" />
+
+            <TextView
                 android:id="@+id/settings_color_customization_section_label"
                 style="@style/SettingsSectionLabelStyle"
                 android:layout_width="match_parent"

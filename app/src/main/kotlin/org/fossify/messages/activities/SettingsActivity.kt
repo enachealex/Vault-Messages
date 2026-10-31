@@ -35,6 +35,7 @@ import org.fossify.messages.dialogs.ExportMessagesDialog
 import org.fossify.messages.extensions.config
 import org.fossify.messages.extensions.emptyMessagesRecycleBin
 import org.fossify.messages.extensions.messagesDB
+import org.fossify.messages.helpers.AppUpdater
 import org.fossify.messages.helpers.FILE_SIZE_100_KB
 import org.fossify.messages.helpers.FILE_SIZE_1_MB
 import org.fossify.messages.helpers.FILE_SIZE_200_KB
@@ -97,6 +98,8 @@ class SettingsActivity : SimpleActivity() {
         super.onResume()
         setupTopAppBar(binding.settingsAppbar, NavigationIcon.Arrow)
 
+        setupCheckForUpdates()
+        setupAutoUpdate()
         setupCustomizeColors()
         setupCustomizeNotifications()
         setupUseEnglish()
@@ -128,6 +131,7 @@ class SettingsActivity : SimpleActivity() {
         }
 
         arrayOf(
+            binding.settingsUpdatesLabel,
             binding.settingsColorCustomizationSectionLabel,
             binding.settingsGeneralSettingsLabel,
             binding.settingsOutgoingMessagesLabel,
@@ -205,6 +209,41 @@ class SettingsActivity : SimpleActivity() {
             Intent(this@SettingsActivity, ManageBlockedNumbersActivity::class.java).apply {
                 startActivity(this)
             }
+        }
+    }
+
+    private fun setupCheckForUpdates() = binding.apply {
+        settingsCheckForUpdatesValue.text = getString(R.string.current_build, AppUpdater.currentBuild())
+        settingsCheckForUpdatesHolder.setOnClickListener {
+            toast(R.string.checking_for_updates)
+            ensureBackgroundThread {
+                val result = AppUpdater.checkAndInstall(applicationContext)
+                runOnUiThread { showUpdateResult(result) }
+            }
+        }
+    }
+
+    private fun showUpdateResult(result: AppUpdater.Result) {
+        when (result) {
+            is AppUpdater.Result.UpToDate -> toast(getString(R.string.up_to_date, result.build))
+            is AppUpdater.Result.Installing -> toast(getString(R.string.installing_update, result.build))
+            is AppUpdater.Result.AlreadyRunning -> toast(R.string.update_already_running)
+            is AppUpdater.Result.Failed -> toast(getString(R.string.update_failed, result.reason))
+            is AppUpdater.Result.NeedsInstallPermission -> {
+                toast(R.string.update_needs_permission)
+                try {
+                    startActivity(AppUpdater.installPermissionIntent(this))
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+
+    private fun setupAutoUpdate() = binding.apply {
+        settingsAutoUpdate.isChecked = config.autoUpdateEnabled
+        settingsAutoUpdateHolder.setOnClickListener {
+            settingsAutoUpdate.toggle()
+            config.autoUpdateEnabled = settingsAutoUpdate.isChecked
         }
     }
 

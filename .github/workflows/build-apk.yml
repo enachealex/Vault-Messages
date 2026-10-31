@@ -28,10 +28,14 @@ jobs:
       - name: Build signed release APK
         env:
           SIGNING_KEY_ALIAS: vault
-          SIGNING_KEY_PASSWORD: vaultmessages
-          SIGNING_STORE_PASSWORD: vaultmessages
-          SIGNING_STORE_FILE: ${{ github.workspace }}/signing/vault-messages.jks
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_STORE_FILE: ${{ github.workspace }}/signing/vault-release.p12
         run: |
+          if [ -z "$SIGNING_STORE_PASSWORD" ]; then
+            echo "::error title=Missing secret::Add the SIGNING_STORE_PASSWORD repository secret (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
           chmod +x gradlew
           set -o pipefail
           ./gradlew assembleFossRelease --console=plain \
